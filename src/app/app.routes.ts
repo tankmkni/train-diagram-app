@@ -1,3 +1,7 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { TestDiagramComponent } from './components/test-diagram/test-diagram.component';
+
+export const AppRoutes: Routes = [
+  { path: '', component: TestDiagramComponent } // デフォルトで TestDiagramComponent を表示
+];
