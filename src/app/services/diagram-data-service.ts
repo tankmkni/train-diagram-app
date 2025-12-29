@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CsvLoaderService } from './csv-loader.service';
+import { CsvLoaderService } from './csv-loader-service';
 import { Observable, map } from 'rxjs';
 
 export interface Station {
