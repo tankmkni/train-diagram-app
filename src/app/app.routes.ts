@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-
-import { TestDiagramComponent } from './components/test-diagram/test-diagram.component';
+import { Diagram } from './components/diagram/diagram';
+import { TestCsvLoad } from './components/test-csv-load/test-csv-load';
 
 export const AppRoutes: Routes = [
-  { path: '', component: TestDiagramComponent } // デフォルトで TestDiagramComponent を表示
+  { path: '', component: TestCsvLoad }
 ];
