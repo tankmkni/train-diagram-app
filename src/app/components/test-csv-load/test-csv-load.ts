@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DiagramDataService, Station, TrainType, TimetableRow } from '../../services/diagram-data-service';
+import { DiagramDataLoaderService, Station, TrainType, TimetableRow } from '../../services/diagram-data-loader-service';
 import { Observable, map } from 'rxjs';
 
 
@@ -33,7 +33,7 @@ export class TestCsvLoad {
   trainTypes$?: Observable<TrainType[]>;
   timetable$?: Observable<TimetableRow[]>;
 
-  constructor(private csvLoader: DiagramDataService) {}
+  constructor(private csvLoader: DiagramDataLoaderService) {}
 
   getStations() {
     this.clear();

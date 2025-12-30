@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
-import { LineChartComponent } from './Chart/line-chart.component';
+import { LineChart } from '../chart/line-chart';
 
 @Component({
   selector: 'app-test-diagram',
   standalone: true,
-  imports: [LineChartComponent],
+  imports: [LineChart],
   template: `
     <h1>Train Diagram</h1>
     <app-line-chart 
-      [chartType]="'line'" 
       [chartData]="chartData" 
       [chartOptions]="chartOptions">
     </app-line-chart>
@@ -40,10 +39,10 @@ export class TestDiagramComponent {
       x: {
         type: 'time',
         time: { unit: 'minute', displayFormats: { minute: 'HH:mm' } },
-        title: { display: true, text: 'Time' }
+        title: { display: false }
       },
       y: {
-        title: { display: true, text: 'Station' }
+        title: { display: false }
       }
     }
   };

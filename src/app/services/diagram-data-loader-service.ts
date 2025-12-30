@@ -27,7 +27,7 @@ export interface TimetableRow {
 @Injectable({
   providedIn: 'root',
 })
-export class DiagramDataService {
+export class DiagramDataLoaderService {
 
   constructor(private csvLoader: CsvLoaderService) {}
 
