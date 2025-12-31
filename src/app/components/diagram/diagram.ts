@@ -4,8 +4,7 @@ import { forkJoin, map, Observable } from 'rxjs';
 import { ChartData, ChartOptions } from 'chart.js';
 import { LineChart } from '../chart/line-chart';
 import { DiagramDataLoaderService } from '../../services/diagram-data-loader-service';
-import { DiagramChartDataBuilder } from '../chart/diagram-chart-data-builder';
-import { DiagramChartOptionsBuilder } from '../chart/diagram-chart-options-builder';
+import { DiagramChartBuilderService } from '../../services/diagram-chart-builder-service';
 
 @Component({
   selector: 'app-diagram',
@@ -27,16 +26,22 @@ export class Diagram {
     options: ChartOptions<'line'>;
   }>;
 
-  constructor(private dataLoader: DiagramDataLoaderService) {
+  constructor(
+    private dataLoader: DiagramDataLoaderService,
+    private chartBuilder: DiagramChartBuilderService
+  ) {
     this.diagramConfig$ = forkJoin({
       stations: this.dataLoader.getStations(),
       trainTypes: this.dataLoader.getTrainTypes(),
       timetable: this.dataLoader.getTimeTable()
     }).pipe(
-      map(({ stations, trainTypes, timetable }) => ({
-        data: DiagramChartDataBuilder.buildData(stations, trainTypes, timetable),
-        options: DiagramChartOptionsBuilder.buildOptions(stations, timetable)
-      }))
+      map(({ stations, trainTypes, timetable }) => {
+        this.chartBuilder.loadData(stations, trainTypes, timetable);
+        return{
+          data: this.chartBuilder.getChartData(),
+          options: this.chartBuilder.getChartOptions()
+        }
+      })
     );
   }
 }
