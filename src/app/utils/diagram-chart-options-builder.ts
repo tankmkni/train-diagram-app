@@ -41,7 +41,29 @@ export class DiagramChartOptionsBuilder {
         }
       },
       plugins: {
-        legend: { display: false }
+        legend: { display: false },
+        tooltip: {
+            callbacks: {
+                label: (context) => {
+                    const xValue = context.parsed.x;
+                    const yValue = context.parsed.y;
+                    
+                    if (xValue == null || yValue == null) {
+                        return '';
+                    }
+
+                    // 距離 → 駅名
+                    const roundedX = Number(xValue.toFixed(1));
+                    const stationName =
+                    distanceToStationName.get(roundedX) ?? `${roundedX} km`;
+
+                    // 分 → HH:mm
+                    const time = minutesToHHmm(yValue);
+
+                    return `${stationName} / ${time}`;
+                }
+            }
+        }
       }
     };
   }
