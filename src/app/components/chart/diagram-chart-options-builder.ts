@@ -5,7 +5,6 @@ export class DiagramChartOptionsBuilder {
 
     public static buildOptions(
         stations: Station[],
-        trainTypes: TrainType[],
         timetable: TimetableRow[]
     ): ChartOptions<'line'> {
 
@@ -28,13 +27,11 @@ export class DiagramChartOptionsBuilder {
                 },
                 y: {
                     type: 'linear',
-                    min: 0, max: Math.max(...Array.from(distanceToStationName.keys())),
+                    min: DiagramChartOptionsBuilder.getYRange(timetable).min,
+                    max: DiagramChartOptionsBuilder.getYRange(timetable).max,
                     ticks: {
-                        stepSize: 0.1,   // 0.1刻みにする
-                        callback: (value) => {
-                            const rounded = Number(value).toFixed(1);  // まず number に変換
-                            return distanceToStationName.get(Number(rounded));  // string に戻るので再度 number に
-                        }
+                        stepSize: 1,
+                        callback: (value) => DiagramChartOptionsBuilder.minutesToHHmm(Number(value))
                     }
                 } 
             },
@@ -54,9 +51,28 @@ export class DiagramChartOptionsBuilder {
     }
 
 
+    public static getYRange(timetable: TimetableRow[]): { min: number; max: number } {
+        const allArrivalMinutes = timetable
+            .map(t => DiagramChartOptionsBuilder.HHmmToMinutes(t.arrivalTime))
+            .filter((v): v is number => v !== null);
+
+        const allDepartureMinutes = timetable
+            .map(t => DiagramChartOptionsBuilder.HHmmToMinutes(t.departureTime))
+            .filter((v): v is number => v !== null);
+
+        return {
+            min: Math.min(...allArrivalMinutes),
+            max: Math.max(...allDepartureMinutes)
+        };
+    }
 
 
-    private static toHHmm(minute: number): string {
+    private static HHmmToMinutes(time: string): number | null {
+        if (time === '---') return null;  // 無効値は null
+        const [h, m] = time.split(':').map(Number);
+        return h * 60 + m;
+    }
+    private static minutesToHHmm(minute: number): string {
         const h = Math.floor(minute / 60);
         const m = minute % 60;
         return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;

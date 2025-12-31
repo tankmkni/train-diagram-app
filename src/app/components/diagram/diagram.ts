@@ -35,7 +35,7 @@ export class Diagram {
     }).pipe(
       map(({ stations, trainTypes, timetable }) => ({
         data: DiagramChartDataBuilder.buildData(stations, trainTypes, timetable),
-        options: DiagramChartOptionsBuilder.buildOptions(stations, trainTypes, timetable)
+        options: DiagramChartOptionsBuilder.buildOptions(stations, timetable)
       }))
     );
   }
