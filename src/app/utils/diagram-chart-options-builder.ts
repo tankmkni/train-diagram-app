@@ -32,8 +32,9 @@ export class DiagramChartOptionsBuilder {
         },
         y: {
           type: 'linear',
-          min: yRange.min,
+          min: yRange.min - 1,
           max: yRange.max,
+          reverse: true,  // 下→上の表示順を反転
           ticks: {
             stepSize: 1,
             callback: (value) => minutesToHHmm(Number(value))
