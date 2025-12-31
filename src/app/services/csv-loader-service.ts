@@ -13,7 +13,7 @@ export class CsvLoaderService {
       map(text => {
         const lines = text.split('\n').filter(l => l.trim() !== '');
         lines.shift();  // ヘッダー行（1行目）を削除
-        return lines.map(line => mapper(line.split(',')));
+        return lines.map(line => mapper(line.split(',').map(col => col.trim())));
       })
     );
   }
