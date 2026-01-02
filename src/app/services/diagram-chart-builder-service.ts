@@ -13,10 +13,11 @@ export class DiagramChartBuilderService {
   private readonly trainTypeColorMap: Record<string, string> = {
     NOR: 'gold',
     RAP: 'gold',
-    ALL: 'blue',
+    ALL: 'limegreen',
     EXP: 'tomato',
     LTD: 'orange',
-    SPX: 'orange'
+    SPX: 'orange',
+    MGR: 'cyan'
   };
   getTrainTypeColor(trainTypeId: string): string {
     return this.trainTypeColorMap[trainTypeId] ?? 'black';

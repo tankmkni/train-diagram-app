@@ -47,8 +47,9 @@ export class DiagramChartDataBuilder {
           { x: x2, y: y2 }
         ],
         fill: false,
-        pointRadius: 0,   // 点を描かない（線分だけ）
-        tension: 0,        // 直線
+        borderWidth: 3,
+        pointRadius: 2,
+        pointHoverRadius: 6,
         borderColor: getColor(current.trainTypeId)
       });
     }
