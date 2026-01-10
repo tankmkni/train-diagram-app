@@ -1,6 +1,7 @@
 import { Station, TrainType, TimetableRow } from '../models/diagram-models';
 import { ChartData, ChartDataset } from 'chart.js';
-import { DiagramChartAxisManagerService, POINT_KIND } from './diagram-chart-axis-manager-service';
+import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
+import { POINT_KIND } from '../models/diagram-models';
 
 export class DiagramChartDataBuilder {
 

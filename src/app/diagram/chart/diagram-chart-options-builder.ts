@@ -1,11 +1,7 @@
 import { ChartOptions } from 'chart.js';
 import { TimetableRow } from '../models/diagram-models';
-import {
-  DiagramChartAxisManagerService,
-  AxisMode,
-  PointKind,
-  POINT_KIND
-} from './diagram-chart-axis-manager-service';
+import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
+import { AxisMode, PointKind, POINT_KIND } from '../models/diagram-models';
 
 export class DiagramChartOptionsBuilder {
 

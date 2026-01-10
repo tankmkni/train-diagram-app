@@ -1,23 +1,5 @@
 import { Injectable } from '@angular/core';
-
-export enum AxisMode {
-  TimeX_StationY,
-  StationX_TimeY
-}
-
-export const POINT_KIND = {
-  DEP: 'dep',
-  ARR: 'arr'
-} as const;
-export type PointKind =
-  typeof POINT_KIND[keyof typeof POINT_KIND];
-
-
-export type DiagramPoint = {
-  x: number;
-  y: number;
-  kind: PointKind;
-};
+import { AxisMode, DiagramPoint, PointKind } from '../models/diagram-models';
 
 @Injectable({
   providedIn: 'root',
