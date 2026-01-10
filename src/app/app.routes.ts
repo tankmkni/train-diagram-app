@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Diagram } from './components/diagram/diagram';
+import { DiagramPage } from './diagram/diagram-page';
 
 export const AppRoutes: Routes = [
-  { path: '', component: Diagram }
+  { path: '', component: DiagramPage }
 ];

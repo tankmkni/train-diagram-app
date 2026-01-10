@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import 'chartjs-adapter-date-fns';
+import 'chartjs-adapter-date-fns';  // Chart.js の time スケールを date-fns で扱うためのアダプタ
 
 
 @Component({
@@ -20,6 +20,6 @@ import 'chartjs-adapter-date-fns';
   `
 })
 export class LineChart {
-  @Input() chartData!: ChartData<'line'>;
-  @Input() chartOptions!: ChartOptions<'line'>;
+  @Input({ required: true }) chartData!: ChartData<'line'>;
+  @Input() chartOptions?: ChartOptions<'line'>;  // 指定しなければ Chart.js のデフォルト設定で描画
 }

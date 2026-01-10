@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { forkJoin, map, Observable } from 'rxjs';
 import { ChartData, ChartOptions } from 'chart.js';
-import { LineChart } from '../chart/line-chart';
-import { DiagramDataLoaderService } from '../../services/diagram-data-loader-service';
-import { DiagramChartBuilderService } from '../../services/diagram-chart-builder-service';
+import { LineChart } from '../shared/chart-js/line-chart';
+import { DiagramDataLoaderService } from './chart/diagram-data-loader-service';
+import { DiagramChartBuilderService } from './chart/diagram-chart-builder-service';
 
 @Component({
   selector: 'app-diagram',
@@ -19,7 +19,7 @@ import { DiagramChartBuilderService } from '../../services/diagram-chart-builder
     }
   `
 })
-export class Diagram {
+export class DiagramPage {
 
   diagramConfig$: Observable<{
     data: ChartData<'line'>;

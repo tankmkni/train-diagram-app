@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 
-import { Station, TrainType, TimetableRow } from './diagram-data-loader-service';
-import { DiagramChartDataBuilder } from '../utils/diagram-chart-data-builder';
-import { DiagramChartOptionsBuilder } from '../utils/diagram-chart-options-builder';
+import { Station, TrainType, TimetableRow } from '../models/diagram-models';
+import { DiagramChartDataBuilder } from './diagram-chart-data-builder';
+import { DiagramChartOptionsBuilder } from './diagram-chart-options-builder';
 
 @Injectable({
   providedIn: 'root'

@@ -1,4 +1,4 @@
-import { Station, TrainType, TimetableRow } from '../services/diagram-data-loader-service';
+import { Station, TrainType, TimetableRow } from '../models/diagram-models';
 import { ChartData, ChartDataset } from 'chart.js';
 
 export class DiagramChartDataBuilder {

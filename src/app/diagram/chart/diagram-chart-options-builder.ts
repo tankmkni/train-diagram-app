@@ -1,5 +1,5 @@
 import { ChartOptions } from 'chart.js';
-import { TimetableRow } from '../services/diagram-data-loader-service';
+import { TimetableRow } from '../models/diagram-models';
 
 export class DiagramChartOptionsBuilder {
 
@@ -10,7 +10,7 @@ export class DiagramChartOptionsBuilder {
     HHmmToMinutes: (time: string) => number | null
   ): ChartOptions<'line'> {
 
-    const yRange = DiagramChartOptionsBuilder.getYRange(
+    const timeAxisRange: {min: number, max: number} = DiagramChartOptionsBuilder.getTimeAxisRange(
       timetable,
       HHmmToMinutes
     );
@@ -32,8 +32,8 @@ export class DiagramChartOptionsBuilder {
         },
         y: {
           type: 'linear',
-          min: yRange.min - 1,
-          max: yRange.max,
+          min: timeAxisRange.min - 1,
+          max: timeAxisRange.max,
           reverse: true,  // 下→上の表示順を反転
           ticks: {
             stepSize: 1,
@@ -44,32 +44,32 @@ export class DiagramChartOptionsBuilder {
       plugins: {
         legend: { display: false },
         tooltip: {
-            callbacks: {
-                label: (context) => {
-                    const xValue = context.parsed.x;
-                    const yValue = context.parsed.y;
-                    
-                    if (xValue == null || yValue == null) {
-                        return '';
-                    }
+          callbacks: {
+            label: (context) => {
+              const xValue = context.parsed.x;
+              const yValue = context.parsed.y;
+              
+              if (xValue == null || yValue == null) {
+                return '';
+              }
 
-                    // 距離 → 駅名
-                    const roundedX = Number(xValue.toFixed(1));
-                    const stationName =
-                    distanceToStationName.get(roundedX) ?? `${roundedX} km`;
+              // 距離 → 駅名
+              const roundedX = Number(xValue.toFixed(1));
+              const stationName =
+              distanceToStationName.get(roundedX) ?? `${roundedX} km`;
 
-                    // 分 → HH:mm
-                    const time = minutesToHHmm(yValue);
+              // 分 → HH:mm
+              const time = minutesToHHmm(yValue);
 
-                    return `${stationName} / ${time}`;
-                }
+              return `${stationName} / ${time}`;
             }
+          }
         }
       }
     };
   }
 
-  private static getYRange(
+  private static getTimeAxisRange(
     timetable: TimetableRow[],
     HHmmToMinutes: (time: string) => number | null
   ): { min: number; max: number } {
