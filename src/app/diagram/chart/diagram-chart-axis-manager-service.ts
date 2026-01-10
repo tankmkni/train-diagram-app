@@ -5,6 +5,20 @@ export enum AxisMode {
   StationX_TimeY
 }
 
+export const POINT_KIND = {
+  DEP: 'dep',
+  ARR: 'arr'
+} as const;
+export type PointKind =
+  typeof POINT_KIND[keyof typeof POINT_KIND];
+
+
+export type DiagramPoint = {
+  x: number;
+  y: number;
+  kind: PointKind;
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -34,11 +48,12 @@ export class DiagramChartAxisManagerService {
 
   buildPoint(
     time: number,
-    distance: number
-  ): { x: number; y: number } {
+    distance: number, 
+    kind: PointKind
+  ): DiagramPoint  {
 
     return this.axisMode === AxisMode.TimeX_StationY
-      ? { x: time, y: distance }
-      : { x: distance, y: time };
+      ? { x: time, y: distance, kind }
+      : { x: distance, y: time, kind };
   }
 }

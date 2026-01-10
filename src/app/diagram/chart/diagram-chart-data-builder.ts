@@ -1,6 +1,6 @@
 import { Station, TrainType, TimetableRow } from '../models/diagram-models';
 import { ChartData, ChartDataset } from 'chart.js';
-import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
+import { DiagramChartAxisManagerService, POINT_KIND } from './diagram-chart-axis-manager-service';
 
 export class DiagramChartDataBuilder {
 
@@ -33,15 +33,16 @@ export class DiagramChartDataBuilder {
       const y2 = stationDistanceMap.get(next.stationId);
       if (y1 == null || y2 == null) continue;
 
-      const point1 = axisManager.buildPoint(x1, y1);
-      const point2 = axisManager.buildPoint(x2, y2);
+      const point1 = axisManager.buildPoint(x1, y1, POINT_KIND.DEP);
+      const point2 = axisManager.buildPoint(x2, y2, POINT_KIND.ARR);
 
       datasets.push({
+        label: timetable[i].trainId,  
         data: [point1, point2],
         fill: false,
         borderWidth: 3,
         pointRadius: 1,
-        pointHoverRadius: 6,
+        pointHoverRadius: 10,
         borderColor: getColor(current.trainTypeId)
       });
     }
