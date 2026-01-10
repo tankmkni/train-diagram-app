@@ -20,7 +20,7 @@ export class DiagramChartOptionsBuilder {
       axisManager.getAxisMode() === AxisMode.TimeX_StationY;
 
     const timeAxis = DiagramChartOptionsBuilder.buildTimeAxis(
-      timeAxisRange.min - 1,
+      timeAxisRange.min,
       timeAxisRange.max,
       minutesToHHmm,
       !isTimeX // 時間が縦のときは上→下
