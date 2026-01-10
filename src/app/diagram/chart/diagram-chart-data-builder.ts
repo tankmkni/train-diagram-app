@@ -1,5 +1,6 @@
 import { Station, TrainType, TimetableRow } from '../models/diagram-models';
 import { ChartData, ChartDataset } from 'chart.js';
+import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
 
 export class DiagramChartDataBuilder {
 
@@ -7,7 +8,8 @@ export class DiagramChartDataBuilder {
     stations: Station[],
     trainTypes: TrainType[],
     timetable: TimetableRow[],
-    getColor: (trainTypeId: string) => string
+    getColor: (trainTypeId: string) => string,
+    axisManager: DiagramChartAxisManagerService
   ): ChartData<'line'> {
 
     const stationDistanceMap = this.buildStationDistanceMap(stations);
@@ -18,37 +20,27 @@ export class DiagramChartDataBuilder {
       const next = timetable[i + 1];
 
       // 列車が違うなら線を引かない
-      if (current.trainId !== next.trainId) {
-        continue;
-      }
+      if (current.trainId !== next.trainId) continue;
 
       // 時刻が欠けている場合はスキップ
-      if (current.departureTime === '---' || next.arrivalTime === '---') {
-        continue;
-      }
+      if (current.departureTime === '---' || next.arrivalTime === '---') continue;
 
-      const x1 = stationDistanceMap.get(current.stationId);
-      const x2 = stationDistanceMap.get(next.stationId);
+      const x1 = this.HHmmToMinutes(current.departureTime);
+      const x2 = this.HHmmToMinutes(next.arrivalTime);
+      if (x1 == null || x2 == null) continue;
 
-      if (x1 == null || x2 == null) {
-        continue;
-      }
+      const y1 = stationDistanceMap.get(current.stationId);
+      const y2 = stationDistanceMap.get(next.stationId);
+      if (y1 == null || y2 == null) continue;
 
-      const y1 = this.HHmmToMinutes(current.departureTime);
-      const y2 = this.HHmmToMinutes(next.arrivalTime);
-
-      if (y1 == null || y2 == null) {
-        continue;
-      }
+      const point1 = axisManager.buildPoint(x1, y1);
+      const point2 = axisManager.buildPoint(x2, y2);
 
       datasets.push({
-        data: [
-          { x: x1, y: y1 },
-          { x: x2, y: y2 }
-        ],
+        data: [point1, point2],
         fill: false,
         borderWidth: 3,
-        pointRadius: 2,
+        pointRadius: 1,
         pointHoverRadius: 6,
         borderColor: getColor(current.trainTypeId)
       });
@@ -63,7 +55,6 @@ export class DiagramChartDataBuilder {
   private static buildStationDistanceMap(stations: Station[]): Map<string, number> {
     const map = new Map<string, number>();
     let sum = 0;
-
     for (const s of stations) {
       sum += s.distanceKm;
       map.set(s.id, Number(sum.toFixed(1)));

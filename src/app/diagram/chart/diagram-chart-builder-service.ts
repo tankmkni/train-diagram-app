@@ -4,6 +4,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { Station, TrainType, TimetableRow } from '../models/diagram-models';
 import { DiagramChartDataBuilder } from './diagram-chart-data-builder';
 import { DiagramChartOptionsBuilder } from './diagram-chart-options-builder';
+import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +31,7 @@ export class DiagramChartBuilderService {
 
   private stationDistanceMap?: Map<string, number>;
 
+  constructor(private axisManager: DiagramChartAxisManagerService){}
 
   /**
    * CSVロード後に一度だけ呼ぶ
@@ -55,7 +57,8 @@ export class DiagramChartBuilderService {
       this.stations,
       this.trainTypes,
       this.timetable,
-      (trainTypeId) => this.getTrainTypeColor(trainTypeId)
+      (trainTypeId) => this.getTrainTypeColor(trainTypeId),
+      this.axisManager
     );
   }
 
@@ -76,7 +79,8 @@ export class DiagramChartBuilderService {
       distanceToStationName,
       this.timetable,
       this.minutesToHHmm.bind(this),
-      this.HHmmToMinutes.bind(this)
+      this.HHmmToMinutes.bind(this),
+      this.axisManager
     );
   }
 

@@ -1,5 +1,6 @@
 import { ChartOptions } from 'chart.js';
 import { TimetableRow } from '../models/diagram-models';
+import { DiagramChartAxisManagerService, AxisMode } from './diagram-chart-axis-manager-service';
 
 export class DiagramChartOptionsBuilder {
 
@@ -7,59 +8,93 @@ export class DiagramChartOptionsBuilder {
     distanceToStationName: Map<number, string>,
     timetable: TimetableRow[],
     minutesToHHmm: (minute: number) => string,
-    HHmmToMinutes: (time: string) => number | null
+    HHmmToMinutes: (time: string) => number | null,
+    axisManager: DiagramChartAxisManagerService
   ): ChartOptions<'line'> {
 
-    const timeAxisRange: {min: number, max: number} = DiagramChartOptionsBuilder.getTimeAxisRange(
-      timetable,
-      HHmmToMinutes
-    );
+    const timeAxisRange = DiagramChartOptionsBuilder.getTimeAxisRange(timetable, HHmmToMinutes);
+    const isTimeX = axisManager.getAxisMode() === AxisMode.TimeX_StationY;
 
     return {
       responsive: true,
       scales: {
-        x: {
-          type: 'linear',
-          min: 0,
-          max: Math.max(...distanceToStationName.keys()),
-          ticks: {
-            stepSize: 0.1,
-            callback: (value) => {
-              const rounded = Number(Number(value).toFixed(1));
-              return distanceToStationName.get(rounded);
+        // x軸
+        x: isTimeX
+          ? {
+              type: 'linear',
+              min: timeAxisRange.min - 1,
+              max: timeAxisRange.max,
+              ticks: {
+                stepSize: 1,
+                callback: function(this, tickValue: string | number) {
+                  const v = typeof tickValue === 'number' ? tickValue : Number(tickValue);
+                  return minutesToHHmm(v);
+                }
+              }
             }
-          }
-        },
-        y: {
-          type: 'linear',
-          min: timeAxisRange.min - 1,
-          max: timeAxisRange.max,
-          reverse: true,  // 下→上の表示順を反転
-          ticks: {
-            stepSize: 1,
-            callback: (value) => minutesToHHmm(Number(value))
-          }
-        }
+          : {
+              type: 'linear',
+              min: 0,
+              max: Math.max(...distanceToStationName.keys()),
+              reverse: axisManager.isStationReverse(),
+              ticks: {
+                stepSize: 0.1,
+                callback: function(this, tickValue: string | number) {
+                  const v = typeof tickValue === 'number' ? tickValue : Number(tickValue);
+                  const rounded = Number(v.toFixed(1));
+                  return distanceToStationName.get(rounded);
+                }
+              }
+            },
+
+        // y軸
+        y: isTimeX
+          ? {
+              type: 'linear',
+              min: 0,
+              max: Math.max(...distanceToStationName.keys()),
+              reverse: axisManager.isStationReverse(),
+              ticks: {
+                stepSize: 0.1,
+                callback: function(this, tickValue: string | number) {
+                  const v = typeof tickValue === 'number' ? tickValue : Number(tickValue);
+                  const rounded = Number(v.toFixed(1));
+                  return distanceToStationName.get(rounded);
+                }
+              }
+            }
+          : {
+              type: 'linear',
+              min: timeAxisRange.min - 1,
+              max: timeAxisRange.max,
+              reverse: true,
+              ticks: {
+                stepSize: 1,
+                callback: function(this, tickValue: string | number) {
+                  const v = typeof tickValue === 'number' ? tickValue : Number(tickValue);
+                  return minutesToHHmm(v);
+                }
+              }
+            }
       },
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (context) => {
+            label: function(context) {
               const xValue = context.parsed.x;
               const yValue = context.parsed.y;
-              
-              if (xValue == null || yValue == null) {
-                return '';
-              }
 
-              // 距離 → 駅名
-              const roundedX = Number(xValue.toFixed(1));
-              const stationName =
-              distanceToStationName.get(roundedX) ?? `${roundedX} km`;
+              if (xValue == null || yValue == null) return '';
 
-              // 分 → HH:mm
-              const time = minutesToHHmm(yValue);
+              // 軸モードに応じて駅名と時間を逆に解釈
+              const point = isTimeX
+                ? { time: xValue, distance: yValue }
+                : { time: yValue, distance: xValue };
+
+              const roundedDistance = Number(point.distance.toFixed(1));
+              const stationName = distanceToStationName.get(roundedDistance) ?? `${roundedDistance} km`;
+              const time = minutesToHHmm(point.time);
 
               return `${stationName} / ${time}`;
             }
@@ -75,10 +110,7 @@ export class DiagramChartOptionsBuilder {
   ): { min: number; max: number } {
 
     const values = timetable
-      .flatMap(t => [
-        HHmmToMinutes(t.arrivalTime),
-        HHmmToMinutes(t.departureTime)
-      ])
+      .flatMap(t => [HHmmToMinutes(t.arrivalTime), HHmmToMinutes(t.departureTime)])
       .filter((v): v is number => v !== null);
 
     return {

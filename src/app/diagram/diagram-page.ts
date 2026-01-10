@@ -1,16 +1,22 @@
 import { Component } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { forkJoin, map, Observable } from 'rxjs';
+import { forkJoin, ReplaySubject } from 'rxjs';
 import { ChartData, ChartOptions } from 'chart.js';
 import { LineChart } from '../shared/chart-js/line-chart';
 import { DiagramDataLoaderService } from './chart/diagram-data-loader-service';
 import { DiagramChartBuilderService } from './chart/diagram-chart-builder-service';
+import { DiagramChartAxisManagerService } from './chart/diagram-chart-axis-manager-service';
 
 @Component({
   selector: 'app-diagram',
   standalone: true,
   imports: [LineChart, AsyncPipe],
   template: `
+    <div class="controls">
+      <button (click)="toggleStationReverse()">駅軸反転</button>
+      <button (click)="toggleAxisMode()">縦横入れ替え</button>
+    </div>
+
     @if (diagramConfig$ | async; as cfg) {
       <app-line-chart
         [chartData]="cfg.data"
@@ -21,27 +27,38 @@ import { DiagramChartBuilderService } from './chart/diagram-chart-builder-servic
 })
 export class DiagramPage {
 
-  diagramConfig$: Observable<{
-    data: ChartData<'line'>;
-    options: ChartOptions<'line'>;
-  }>;
+  private diagramConfigSubject = new ReplaySubject<{ data: ChartData<'line'>; options: ChartOptions<'line'> }>(1);
+  diagramConfig$ = this.diagramConfigSubject.asObservable();
 
   constructor(
     private dataLoader: DiagramDataLoaderService,
-    private chartBuilder: DiagramChartBuilderService
+    private chartBuilder: DiagramChartBuilderService,
+    private axisManager: DiagramChartAxisManagerService
   ) {
-    this.diagramConfig$ = forkJoin({
+    forkJoin({
       stations: this.dataLoader.getStations(),
       trainTypes: this.dataLoader.getTrainTypes(),
       timetable: this.dataLoader.getTimeTable()
-    }).pipe(
-      map(({ stations, trainTypes, timetable }) => {
-        this.chartBuilder.loadData(stations, trainTypes, timetable);
-        return{
-          data: this.chartBuilder.getChartData(),
-          options: this.chartBuilder.getChartOptions()
-        }
-      })
-    );
+    }).subscribe(({ stations, trainTypes, timetable }) => {
+      this.chartBuilder.loadData(stations, trainTypes, timetable);
+      this.refreshChart();
+    });
+  }
+
+  private refreshChart() {
+    this.diagramConfigSubject.next({
+      data: this.chartBuilder.getChartData(),
+      options: this.chartBuilder.getChartOptions()
+    });
+  }
+
+  toggleStationReverse() {
+    this.axisManager.toggleStationReverse();
+    this.refreshChart();
+  }
+
+  toggleAxisMode() {
+    this.axisManager.toggleAxisMode();
+    this.refreshChart();
   }
 }
