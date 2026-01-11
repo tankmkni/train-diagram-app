@@ -1,11 +1,13 @@
 import { ChartOptions } from 'chart.js';
 import { TimetableRow } from '../models/diagram-models';
-import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
 import { AxisMode, PointKind, POINT_KIND } from '../models/diagram-models';
 
 
 export class DiagramChartOptionsBuilder {
 
+  /**
+   * chart.js 用のオプション(xy軸表示等)を作成
+   */
   public static buildOptions(
     timetable: TimetableRow[],
     HHmmToMinutes: (time: string) => number | null,
@@ -78,8 +80,10 @@ export class DiagramChartOptionsBuilder {
       }
     };
   }
-
-  // ===== 時間軸定義 =====
+  
+  /**
+   * 時間軸定義
+   */
   private static buildTimeAxis(
     min: number,
     max: number,
@@ -104,7 +108,9 @@ export class DiagramChartOptionsBuilder {
     };
   }
 
-  // ===== 駅軸定義 =====
+  /**
+   * 駅軸定義
+   */
   private static buildStationAxis(
     distanceToStationName: Map<number, string>,
     reverse: boolean
@@ -128,7 +134,9 @@ export class DiagramChartOptionsBuilder {
     };
   }
 
-  // ===== 共通処理 =====
+  /**
+   * 時間軸範囲
+   */
   private static getTimeAxisRange(
     timetable: TimetableRow[],
     HHmmToMinutes: (time: string) => number | null
@@ -147,6 +155,12 @@ export class DiagramChartOptionsBuilder {
     };
   }
 
+  /**
+   * パース済みの座標点を、軸の向きに応じて time / distance に変換する
+   * @param parsed - x, y の座標値（null の場合あり）
+   * @param isTimeX - true の場合は x 軸が時間、false の場合は y 軸が時間
+   * @returns time と distance を持つオブジェクト、どちらかが null の場合は null
+   */
   private static toTimeDistance(
     parsed: { x: number | null; y: number | null },
     isTimeX: boolean

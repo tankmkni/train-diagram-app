@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import 'chartjs-adapter-date-fns';  // Chart.js の time スケールを date-fns で扱うためのアダプタ
 
 
 @Component({

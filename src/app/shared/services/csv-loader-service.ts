@@ -7,7 +7,7 @@ import { Observable, map } from 'rxjs';
 })
 export class CsvLoaderService {
 
-  constructor(private http: HttpClient) {}  // HttpClientをDIするためにサービスにしている
+  constructor(private http: HttpClient) {}  // HttpClientをDIするためにこのクラスをサービスにしている
 
   /**
    * CSV ファイルを読み込み、各行を mapper で任意の型に変換して返す。

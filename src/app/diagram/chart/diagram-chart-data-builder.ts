@@ -2,9 +2,12 @@ import { DiagramPoint, PointKind, TimetableRow } from '../models/diagram-models'
 import { ChartData, ChartDataset } from 'chart.js';
 import { POINT_KIND } from '../models/diagram-models';
 
+
 export class DiagramChartDataBuilder {
 
-  // Chart.js 用のデータを生成
+  /**
+   * Chart.js 用のデータを生成
+   */
   public static buildData(
     timetable: TimetableRow[],
     HHmmToMinutes: (time: string) => number | null,

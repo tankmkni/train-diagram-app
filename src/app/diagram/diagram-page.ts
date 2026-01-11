@@ -7,6 +7,7 @@ import { DiagramDataLoaderService } from './chart/diagram-data-loader-service';
 import { DiagramChartBuilderService } from './chart/diagram-chart-builder-service';
 import { DiagramChartAxisManagerService } from './chart/diagram-chart-axis-manager-service';
 
+
 @Component({
   selector: 'app-diagram',
   standalone: true,

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AxisMode, DiagramPoint, PointKind } from '../models/diagram-models';
 
+
 @Injectable({
   providedIn: 'root',
 })
@@ -28,7 +29,9 @@ export class DiagramChartAxisManagerService {
     return this.stationReverse;
   }
 
-  // AxisMode に応じて、x/y を入れ替えて DiagramPoint を作成
+  /**
+   * AxisMode に応じて、x/y を入れ替えて DiagramPoint を作成
+   */
   buildPoint(
     time: number,
     distance: number, 
