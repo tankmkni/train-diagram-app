@@ -45,39 +45,32 @@ export class DiagramChartOptionsBuilder {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            title(contexts) {
-              const ctx = contexts[0];
-              if (!ctx) return '';
-
-              const point = DiagramChartOptionsBuilder.toTimeDistance(
-                ctx.parsed,
-                isTimeX
-              );
-              if (!point) return '';
-
-              const rounded = Number(point.distance.toFixed(1));
-              return distanceToStationName.get(rounded) ?? `${rounded} km`;
-            },
-            label(context) {
-              const point = DiagramChartOptionsBuilder.toTimeDistance(
-                context.parsed,
-                isTimeX
-              );
-              if (!point) return '';
-
-              const trainId = context.dataset.label;
-
-              const raw = context.raw as { kind?: PointKind };
-              const suffix =
-                raw.kind === POINT_KIND.DEP ? ' 発' :
-                raw.kind === POINT_KIND.ARR ? ' 着' :
-                '';
-
-              return trainId + ' - ' + minutesToHHmm(point.time) + suffix;
-            }
+            title: DiagramChartOptionsBuilder.buildTooltipTitle(isTimeX, distanceToStationName),
+            label: DiagramChartOptionsBuilder.tooltipLabel(isTimeX, minutesToHHmm)
           }
         }
       }
+    };
+  }
+
+  /**
+   * 時間軸範囲
+   */
+  private static getTimeAxisRange(
+    timetable: TimetableRow[],
+    HHmmToMinutes: (time: string) => number | null
+  ): { min: number; max: number } {
+
+    const values = timetable
+      .flatMap(t => [
+        HHmmToMinutes(t.arrivalTime),
+        HHmmToMinutes(t.departureTime)
+      ])
+      .filter((v): v is number => v !== null);
+
+    return {
+      min: Math.min(...values),
+      max: Math.max(...values)
     };
   }
   
@@ -135,23 +128,43 @@ export class DiagramChartOptionsBuilder {
   }
 
   /**
-   * 時間軸範囲
+   * ツールチップタイトル作成
    */
-  private static getTimeAxisRange(
-    timetable: TimetableRow[],
-    HHmmToMinutes: (time: string) => number | null
-  ): { min: number; max: number } {
+  private static buildTooltipTitle(
+    isTimeX: boolean,
+    distanceToStationName: Map<number, string>
+  ) {
+    return (contexts: any[]) => {
+      const ctx = contexts[0];
+      if (!ctx) return '';
 
-    const values = timetable
-      .flatMap(t => [
-        HHmmToMinutes(t.arrivalTime),
-        HHmmToMinutes(t.departureTime)
-      ])
-      .filter((v): v is number => v !== null);
+      const point = DiagramChartOptionsBuilder.toTimeDistance(ctx.parsed, isTimeX);
+      if (!point) return '';
 
-    return {
-      min: Math.min(...values),
-      max: Math.max(...values)
+      const rounded = Number(point.distance.toFixed(1));
+      return distanceToStationName.get(rounded) ?? `${rounded} km`;
+    };
+  }
+
+  /**
+   * ツールチップラベル作成
+   */
+  private static tooltipLabel(
+    isTimeX: boolean,
+    minutesToHHmm: (minute: number) => string
+  ) {
+    return (context: any) => {
+      const point = DiagramChartOptionsBuilder.toTimeDistance(context.parsed, isTimeX);
+      if (!point) return '';
+
+      const trainId = context.dataset.label;
+      const raw = context.raw as { kind?: PointKind };
+      const suffix =
+        raw.kind === POINT_KIND.DEP ? ' 発' :
+        raw.kind === POINT_KIND.ARR ? ' 着' :
+        '';
+
+      return `${trainId} - ${minutesToHHmm(point.time)}${suffix}`;
     };
   }
 
