@@ -25,7 +25,8 @@ export class DiagramDataLoaderService {
   getTrainTypes(): Observable<TrainType[]>{
     return this.csvLoader.loadWithoutHeader<TrainType>(`${this.csvRoot}/train_types.csv`, cols => ({
       id: cols[0],
-      name: cols[1]
+      name: cols[1],
+      color: cols[2]
     }))
   }
 

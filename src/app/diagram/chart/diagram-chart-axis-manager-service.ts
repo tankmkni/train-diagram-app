@@ -7,7 +7,7 @@ import { AxisMode, DiagramPoint, PointKind } from '../models/diagram-models';
 export class DiagramChartAxisManagerService {
 
   private axisMode: AxisMode = AxisMode.TimeX_StationY;  // 軸の向き
-  private stationReverse = false;  // 駅軸の表示順（true: 反転）
+  private stationReverse = true;  // 駅軸の表示順（true: 反転）
 
   toggleAxisMode(): void {
     this.axisMode =
@@ -28,6 +28,7 @@ export class DiagramChartAxisManagerService {
     return this.stationReverse;
   }
 
+  // AxisMode に応じて、x/y を入れ替えて DiagramPoint を作成
   buildPoint(
     time: number,
     distance: number, 

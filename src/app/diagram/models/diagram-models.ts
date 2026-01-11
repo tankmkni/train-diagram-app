@@ -8,6 +8,7 @@ export interface Station {
 export interface TrainType {
   id: string;
   name: string;
+  color: string;
 }
 
 export interface TimetableRow {

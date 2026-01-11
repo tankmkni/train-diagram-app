@@ -1,19 +1,18 @@
-import { Station, TrainType, TimetableRow } from '../models/diagram-models';
+import { DiagramPoint, PointKind, TimetableRow } from '../models/diagram-models';
 import { ChartData, ChartDataset } from 'chart.js';
-import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
 import { POINT_KIND } from '../models/diagram-models';
 
 export class DiagramChartDataBuilder {
 
+  // Chart.js 用のデータを生成
   public static buildData(
-    stations: Station[],
-    trainTypes: TrainType[],
     timetable: TimetableRow[],
-    getColor: (trainTypeId: string) => string,
-    axisManager: DiagramChartAxisManagerService
+    HHmmToMinutes: (time: string) => number | null,
+    getStationDistanceMap: () => Map<string, number>,
+    buildPoint: (x: number, y: number, kind: PointKind) => DiagramPoint,
+    getTrainTypeColor: (trainTypeId: string) => string
   ): ChartData<'line'> {
 
-    const stationDistanceMap = this.buildStationDistanceMap(stations);
     const datasets: ChartDataset<'line'>[] = [];
 
     for (let i = 0; i < timetable.length - 1; i++) {
@@ -26,16 +25,17 @@ export class DiagramChartDataBuilder {
       // 時刻が欠けている場合はスキップ
       if (current.departureTime === '---' || next.arrivalTime === '---') continue;
 
-      const x1 = this.HHmmToMinutes(current.departureTime);
-      const x2 = this.HHmmToMinutes(next.arrivalTime);
+      const x1 = HHmmToMinutes(current.departureTime);
+      const x2 = HHmmToMinutes(next.arrivalTime);
       if (x1 == null || x2 == null) continue;
 
-      const y1 = stationDistanceMap.get(current.stationId);
-      const y2 = stationDistanceMap.get(next.stationId);
+      const y1 = getStationDistanceMap().get(current.stationId);
+      const y2 = getStationDistanceMap().get(next.stationId);
       if (y1 == null || y2 == null) continue;
 
-      const point1 = axisManager.buildPoint(x1, y1, POINT_KIND.DEP);
-      const point2 = axisManager.buildPoint(x2, y2, POINT_KIND.ARR);
+      // 
+      const point1 = buildPoint(x1, y1, POINT_KIND.DEP);
+      const point2 = buildPoint(x2, y2, POINT_KIND.ARR);
 
       datasets.push({
         label: timetable[i].trainId,  
@@ -44,32 +44,10 @@ export class DiagramChartDataBuilder {
         borderWidth: 3,
         pointRadius: 1,
         pointHoverRadius: 10,
-        borderColor: getColor(current.trainTypeId)
+        borderColor: getTrainTypeColor(current.trainTypeId)
       });
     }
 
     return { datasets };
-  }
-
-  /**
-   * stationId → 累積距離
-   */
-  private static buildStationDistanceMap(stations: Station[]): Map<string, number> {
-    const map = new Map<string, number>();
-    let sum = 0;
-    for (const s of stations) {
-      sum += s.distanceKm;
-      map.set(s.id, Number(sum.toFixed(1)));
-    }
-    return map;
-  }
-
-  /**
-   * "HH:mm" → 分
-   */
-  private static HHmmToMinutes(time: string): number | null {
-    if (time === '---') return null;
-    const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
   }
 }

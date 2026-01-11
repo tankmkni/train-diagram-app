@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 
-import { Station, TrainType, TimetableRow } from '../models/diagram-models';
+import { Station, TrainType, TimetableRow, PointKind } from '../models/diagram-models';
 import { DiagramChartDataBuilder } from './diagram-chart-data-builder';
 import { DiagramChartOptionsBuilder } from './diagram-chart-options-builder';
 import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
@@ -11,20 +11,6 @@ import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-ser
 })
 export class DiagramChartBuilderService {
 
-  private readonly trainTypeColorMap: Record<string, string> = {
-    NOR: 'gold',
-    RAP: 'gold',
-    ALL: 'limegreen',
-    EXP: 'tomato',
-    LTD: 'orange',
-    SPX: 'orange',
-    MGR: 'cyan'
-  };
-  getTrainTypeColor(trainTypeId: string): string {
-    return this.trainTypeColorMap[trainTypeId] ?? 'black';
-  }
-
-
   private stations: Station[] = [];
   private trainTypes: TrainType[] = [];
   private timetable: TimetableRow[] = [];
@@ -33,9 +19,7 @@ export class DiagramChartBuilderService {
 
   constructor(private axisManager: DiagramChartAxisManagerService){}
 
-  /**
-   * CSVロード後に一度だけ呼ぶ
-   */
+  //CSVロード後に一度だけ呼ぶ
   loadData(
     stations: Station[],
     trainTypes: TrainType[],
@@ -48,25 +32,43 @@ export class DiagramChartBuilderService {
     this.stationDistanceMap = undefined;
   }
 
-  /**
-   * Chart.js 用データ生成
-   */
+  // Chart.js 用データ生成
   getChartData(): ChartData<'line'> {
     this.assertLoaded();
+
+    const HHmmToMinutes = (time: string) =>
+      this.HHmmToMinutes(time);
+
+    const getStationDistanceMap = () =>
+      this.getStationDistanceMap();
+
+    const buildPoint = (x: number, y: number, kind: PointKind) =>
+      this.axisManager.buildPoint(x, y, kind);
+
+    const getTrainTypeColor = (trainTypeId: string) =>
+      this.getTrainTypeColor(trainTypeId);
+
     return DiagramChartDataBuilder.buildData(
-      this.stations,
-      this.trainTypes,
       this.timetable,
-      (trainTypeId) => this.getTrainTypeColor(trainTypeId),
-      this.axisManager
+      HHmmToMinutes,
+      getStationDistanceMap,
+      buildPoint,
+      getTrainTypeColor
     );
   }
 
-  /**
-   * Chart.js 用オプション生成
-   */
+  // Chart.js 用オプション生成
   getChartOptions(): ChartOptions<'line'> {
     this.assertLoaded();
+
+    const HHmmToMinutes = (time: string) =>
+      this.HHmmToMinutes(time);
+
+    const getAxisMode = () =>
+      this.axisManager.getAxisMode();
+
+    const minutesToHHmm = (minute: number) =>
+      this.minutesToHHmm(minute);
 
     // stationId → 距離 を name に変換
     const distanceToStationName = new Map<number, string>();
@@ -75,12 +77,16 @@ export class DiagramChartBuilderService {
       distanceToStationName.set(km, station.name);
     }
 
+    const isStationReverse = () =>
+      this.axisManager.isStationReverse();
+
     return DiagramChartOptionsBuilder.buildOptions(
-      distanceToStationName,
       this.timetable,
-      this.minutesToHHmm.bind(this),
-      this.HHmmToMinutes.bind(this),
-      this.axisManager
+      HHmmToMinutes,
+      getAxisMode,
+      minutesToHHmm,
+      distanceToStationName,
+      isStationReverse
     );
   }
 
@@ -93,18 +99,14 @@ export class DiagramChartBuilderService {
     return h * 60 + m;
   }
 
-  /**
-   * 分 → "HH:mm"
-   */
+  // 分 → "HH:mm"
   minutesToHHmm(minute: number): string {
     const h = Math.floor(minute / 60);
     const m = minute % 60;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   }
 
-  /**
-   * stationId → 累積距離
-   */
+  // stationId → 累積距離
   getStationDistanceMap(): Map<string, number> {
 
     if (this.stationDistanceMap) {
@@ -123,9 +125,13 @@ export class DiagramChartBuilderService {
     return map;
   }
 
-  /**
-   * データ未ロード防止
-   */
+  // 列車種別CSVに定義されたラインカラーを取得
+  private getTrainTypeColor(trainTypeId: string): string {
+    const type = this.trainTypes.find(t => t.id === trainTypeId);
+    return type?.color ?? 'black';
+  }
+
+  // データ未ロードの場合にエラーを返す
   private assertLoaded(): void {
     if (!this.stations.length || !this.timetable.length) {
       throw new Error('DiagramChartService: data is not loaded.');

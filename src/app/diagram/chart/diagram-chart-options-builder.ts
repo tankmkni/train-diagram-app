@@ -3,21 +3,23 @@ import { TimetableRow } from '../models/diagram-models';
 import { DiagramChartAxisManagerService } from './diagram-chart-axis-manager-service';
 import { AxisMode, PointKind, POINT_KIND } from '../models/diagram-models';
 
+
 export class DiagramChartOptionsBuilder {
 
   public static buildOptions(
-    distanceToStationName: Map<number, string>,
     timetable: TimetableRow[],
-    minutesToHHmm: (minute: number) => string,
     HHmmToMinutes: (time: string) => number | null,
-    axisManager: DiagramChartAxisManagerService
+    getAxisMode: () => AxisMode,
+    minutesToHHmm: (minute: number) => string,
+    distanceToStationName: Map<number, string>,
+    isStationReverse: () => boolean
   ): ChartOptions<'line'> {
 
     const timeAxisRange =
       DiagramChartOptionsBuilder.getTimeAxisRange(timetable, HHmmToMinutes);
 
     const isTimeX =
-      axisManager.getAxisMode() === AxisMode.TimeX_StationY;
+      getAxisMode() === AxisMode.TimeX_StationY;
 
     const timeAxis = DiagramChartOptionsBuilder.buildTimeAxis(
       timeAxisRange.min,
@@ -28,7 +30,7 @@ export class DiagramChartOptionsBuilder {
 
     const stationAxis = DiagramChartOptionsBuilder.buildStationAxis(
       distanceToStationName,
-      axisManager.isStationReverse()
+      isStationReverse()
     );
 
     return {
