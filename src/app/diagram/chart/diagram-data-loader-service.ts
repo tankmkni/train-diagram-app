@@ -9,10 +9,12 @@ import { Station, TimetableRow, TrainType } from '../models/diagram-models';
 })
 export class DiagramDataLoaderService {
 
+  private readonly csvRoot = 'data';
+
   constructor(private csvLoader: CsvLoaderService) {}
 
   getStations(): Observable<Station[]>{
-    return this.csvLoader.loadWithoutHeader<Station>('data/stations.csv', cols => ({
+    return this.csvLoader.loadWithoutHeader<Station>(`${this.csvRoot}/stations.csv`, cols => ({
       id: cols[0],
       name: cols[1],
       distanceKm: Number(cols[2]),
@@ -21,14 +23,14 @@ export class DiagramDataLoaderService {
   }
 
   getTrainTypes(): Observable<TrainType[]>{
-    return this.csvLoader.loadWithoutHeader<TrainType>('data/train_types.csv', cols => ({
+    return this.csvLoader.loadWithoutHeader<TrainType>(`${this.csvRoot}/train_types.csv`, cols => ({
       id: cols[0],
       name: cols[1]
     }))
   }
 
   getTimeTable(): Observable<TimetableRow[]>{
-    return this.csvLoader.loadWithoutHeader<TimetableRow>('data/timetable.csv', cols => ({
+    return this.csvLoader.loadWithoutHeader<TimetableRow>(`${this.csvRoot}/timetable.csv`, cols => ({
       trainId: cols[0],
       trainTypeId: cols[1],
       destination: cols[2],
