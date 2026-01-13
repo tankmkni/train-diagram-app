@@ -14,7 +14,8 @@ export interface TrainType {
 export interface TimetableRow {
   trainId: string;
   trainTypeId: string;
-  destination: string;
+  originStation: string;
+  destinationStation: string;
   stationId: string;
   arrivalTime: string;    // "08:31"
   departureTime: string;  // "08:33"

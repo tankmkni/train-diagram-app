@@ -34,10 +34,11 @@ export class DiagramDataLoaderService {
     return this.csvLoader.loadWithoutHeader<TimetableRow>(`${this.csvRoot}/timetable.csv`, cols => ({
       trainId: cols[0],
       trainTypeId: cols[1],
-      destination: cols[2],
-      stationId: cols[3],
-      arrivalTime: cols[4],
-      departureTime: cols[5]
+      originStation: cols[2],
+      destinationStation: cols[3],
+      stationId: cols[4],
+      arrivalTime: cols[5],
+      departureTime: cols[6]
     }))
   }
 }

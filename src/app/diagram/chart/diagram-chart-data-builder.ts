@@ -22,6 +22,11 @@ export class DiagramChartDataBuilder {
       const current = timetable[i];
       const next = timetable[i + 1];
 
+      const trainId = timetable[i].trainId;
+      const originStation = timetable[i].originStation;
+      const destinationStation = timetable[i].destinationStation;
+      const labelMessage = `${trainId} (${originStation} > ${destinationStation})`
+
       // 列車が違うなら線を引かない
       if (current.trainId !== next.trainId) continue;
 
@@ -36,12 +41,12 @@ export class DiagramChartDataBuilder {
       const y2 = getStationDistanceMap().get(next.stationId);
       if (y1 == null || y2 == null) continue;
 
-      // 
+      // AxisMode に応じて時間軸と駅軸を入れ替える
       const point1 = buildPoint(x1, y1, POINT_KIND.DEP);
       const point2 = buildPoint(x2, y2, POINT_KIND.ARR);
 
       datasets.push({
-        label: timetable[i].trainId,  
+        label: labelMessage,
         data: [point1, point2],
         fill: false,
         borderWidth: 3,
