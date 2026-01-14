@@ -1,8 +1,4 @@
 ﻿typeId,typeName,color
-NOR,普通,gold
-RAP,快速,gold
-ALL,各駅,limegreen
+LOC,各駅,limegreen
 EXP,急行,tomato
-LTD,通特,orange
-SPX,特急,orange
-MGR,目黒線,cyan
+CLT,通特,orange
