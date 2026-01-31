@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && xcopy docs\\browser\\* docs\\ /E /I /Y && rmdir /s /q docs\\browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "s": "ng serve --open",
